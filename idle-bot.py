@@ -5,11 +5,12 @@ import curses
 import random
 import time
 import datetime
+import sys
 from adafruit_servokit import ServoKit
 
 _TITLE = 'IDLE BOT'
 
-_VERSION = 'Version 2.2.7'
+_VERSION = 'Version 2.2.9'
 
 _TAG_STATUS = '  STATUS: '
 _TAG_INFO = '  INFO: '
@@ -18,6 +19,7 @@ _TAG_HELP = '  HELP: '
 
 _STATUS_STOPPED = 'STOPPED'
 _STATUS_QUITTING = 'QUITTING...'
+_STATUS_RELOADING = 'RELOADING...'
 
 _COMMAND_INVALID = 'INVALID KEY'
 
@@ -134,14 +136,14 @@ class Screen:
         self._clear()
         if status == _STATUS_STOPPED:
             self._add_status(status, color=_COLOR_RED, bold=True)
-            self._add_help('(R)un, (Q)uit')
+            self._add_help('(R)un, Re(L)oad, (Q)uit')
             self._add_prompt(error=error)
-        elif status == _STATUS_QUITTING:
+        elif status == _STATUS_QUITTING or status == _STATUS_RELOADING:
             self._add_status(status, color=_COLOR_RED, bold=True)
 
         self.window.refresh()
 
-        if status == _STATUS_QUITTING:
+        if status == _STATUS_QUITTING or status == _STATUS_RELOADING:
             time.sleep(1)
 
     def running(self, status, info=None, error=None, help=None):
@@ -189,6 +191,7 @@ class Screen:
         return key
 
 def bot(window):
+    global ret
     screen = Screen(window)
     servo = 0
 
@@ -205,7 +208,7 @@ def bot(window):
 
                 sleep = random.randrange(45, 75)
                 status = 'RUNNING: Servo NEUTRAL'
-                help = '(E)ngage, (S)top, (Q)uit'
+                help = '(E)ngage, (S)top, Re(L)oad, (Q)uit'
                 key = screen.sleep_or_get_key(sleep, status, help)
 
                 if key == ord('s'):
@@ -213,6 +216,10 @@ def bot(window):
                     break
                 elif key == ord('q'):
                     screen.main(_STATUS_QUITTING)
+                    return
+                elif key == ord('l'):
+                    screen.main(_STATUS_RELOADING)
+                    ret = 2
                     return
 
                 status = 'RUNNING: Servo to ENGAGED...'
@@ -221,7 +228,7 @@ def bot(window):
 
                 sleep = random.randrange(5, 10)
                 status = 'RUNNING: Servo ENGAGED'
-                help = '(N)eutral, (S)top, (Q)uit'
+                help = '(N)eutral, (S)top, Re(L)oad, (Q)uit'
                 key = screen.sleep_or_get_key(sleep, status, help)
 
                 if key == ord('s'):
@@ -232,9 +239,19 @@ def bot(window):
                     servo_start()
                     screen.main(_STATUS_QUITTING)
                     return
+                elif key == ord('l'):
+                    servo_start()
+                    screen.main(_STATUS_RELOADING)
+                    ret = 2
+                    return
 
         elif key == ord('q'):
             screen.main(_STATUS_QUITTING)
+            return
+
+        elif key == ord('l'):
+            screen.main(_STATUS_RELOADING)
+            ret = 2
             return
 
         elif key != -1:
@@ -274,8 +291,12 @@ servo_config = [
     },
 ]
 
+ret = 0
+
 servo_start()
 
 curses.wrapper(bot)
 
 os.system('clear')
+
+sys.exit(ret)
