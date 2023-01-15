@@ -9,7 +9,7 @@ from adafruit_servokit import ServoKit
 
 _TITLE = 'IDLE BOT'
 
-_VERSION = 'Version 2.2.5'
+_VERSION = 'Version 2.2.7'
 
 _TAG_STATUS = '  STATUS: '
 _TAG_INFO = '  INFO: '
@@ -156,6 +156,13 @@ class Screen:
         self._add_prompt(error=error)
         self.window.refresh()
 
+    def moving(self, status):
+        self._add_header()
+        self._add_footer()
+        self._clear()
+        self._add_status(status, color=_COLOR_GREEN, bold=True)
+        self.window.refresh()
+
     def get_key(self, timeout=-1):
         self.window.timeout(timeout)
         return(self.window.getch())
@@ -192,8 +199,8 @@ def bot(window):
 
         if key == ord('r'):
             while True:
-                status = 'RUNNING: Servo to NEUTRAL'
-                screen.running(status)
+                status = 'RUNNING: Servo to NEUTRAL...'
+                screen.moving(status)
                 move_servo(servo, servo_config[servo]['start'])
 
                 sleep = random.randrange(45, 75)
@@ -208,8 +215,8 @@ def bot(window):
                     screen.main(_STATUS_QUITTING)
                     return
 
-                status = 'RUNNING: Servo to ENGAGED'
-                screen.running(status)
+                status = 'RUNNING: Servo to ENGAGED...'
+                screen.moving(status)
                 move_servo(servo, servo_config[servo]['engage'])
 
                 sleep = random.randrange(5, 10)
