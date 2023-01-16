@@ -10,7 +10,7 @@ from adafruit_servokit import ServoKit
 
 _TITLE = 'IDLE BOT'
 
-_VERSION = 'Version 2.2.9'
+_VERSION = 'Version 2.2.11'
 
 _TAG_STATUS = '  STATUS: '
 _TAG_INFO = '  INFO: '
@@ -191,7 +191,6 @@ class Screen:
         return key
 
 def bot(window):
-    global ret
     screen = Screen(window)
     servo = 0
 
@@ -216,11 +215,10 @@ def bot(window):
                     break
                 elif key == ord('q'):
                     screen.main(_STATUS_QUITTING)
-                    return
+                    return 0
                 elif key == ord('l'):
                     screen.main(_STATUS_RELOADING)
-                    ret = 2
-                    return
+                    return 2
 
                 status = 'RUNNING: Servo to ENGAGED...'
                 screen.moving(status)
@@ -238,21 +236,19 @@ def bot(window):
                 elif key == ord('q'):
                     servo_start()
                     screen.main(_STATUS_QUITTING)
-                    return
+                    return 0
                 elif key == ord('l'):
                     servo_start()
                     screen.main(_STATUS_RELOADING)
-                    ret = 2
-                    return
+                    return 2
 
         elif key == ord('q'):
             screen.main(_STATUS_QUITTING)
-            return
+            return 0
 
         elif key == ord('l'):
             screen.main(_STATUS_RELOADING)
-            ret = 2
-            return
+            return 2
 
         elif key != -1:
             screen.main(_STATUS_STOPPED, error=_COMMAND_INVALID)
@@ -291,11 +287,9 @@ servo_config = [
     },
 ]
 
-ret = 0
-
 servo_start()
 
-curses.wrapper(bot)
+ret = curses.wrapper(bot)
 
 os.system('clear')
 
