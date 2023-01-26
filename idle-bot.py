@@ -10,7 +10,7 @@ from adafruit_servokit import ServoKit
 
 _TITLE = 'IDLE BOT'
 
-_VERSION = 'Version 2.2.11'
+_VERSION = 'Version 2.2.12'
 
 _TAG_STATUS = '  STATUS: '
 _TAG_INFO = '  INFO: '
@@ -207,7 +207,7 @@ def bot(window):
 
                 sleep = random.randrange(45, 75)
                 status = 'RUNNING: Servo NEUTRAL'
-                help = '(E)ngage, (S)top, Re(L)oad, (Q)uit'
+                help = '(E)ngage, (S)top, (Q)uit'
                 key = screen.sleep_or_get_key(sleep, status, help)
 
                 if key == ord('s'):
@@ -216,9 +216,6 @@ def bot(window):
                 elif key == ord('q'):
                     screen.main(_STATUS_QUITTING)
                     return 0
-                elif key == ord('l'):
-                    screen.main(_STATUS_RELOADING)
-                    return 2
 
                 status = 'RUNNING: Servo to ENGAGED...'
                 screen.moving(status)
@@ -226,7 +223,7 @@ def bot(window):
 
                 sleep = random.randrange(5, 10)
                 status = 'RUNNING: Servo ENGAGED'
-                help = '(N)eutral, (S)top, Re(L)oad, (Q)uit'
+                help = '(N)eutral, (S)top, (Q)uit'
                 key = screen.sleep_or_get_key(sleep, status, help)
 
                 if key == ord('s'):
@@ -237,10 +234,6 @@ def bot(window):
                     servo_start()
                     screen.main(_STATUS_QUITTING)
                     return 0
-                elif key == ord('l'):
-                    servo_start()
-                    screen.main(_STATUS_RELOADING)
-                    return 2
 
         elif key == ord('q'):
             screen.main(_STATUS_QUITTING)
